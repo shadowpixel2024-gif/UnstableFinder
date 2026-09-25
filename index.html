@@ -1,0 +1,3675 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>⚡ UNSTABLE SMP — Player Database</title>
+
+    <style>
+        :root {
+            --bg: #08050f;
+            --bg2: #0e0818;
+            --card: #130d21;
+            --purple: #9b5cff;
+            --purple2: #c084fc;
+            --pink: #ec4899;
+            --red: #ef4444;
+            --green: #22c55e;
+            --gold: #facc15;
+            --blue: #38bdf8;
+            --text: #f8f5ff;
+            --muted: #a99fba;
+            --border: rgba(255,255,255,.08);
+            --shadow: 0 20px 60px rgba(0,0,0,.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(155,92,255,.18), transparent 30%),
+                radial-gradient(circle at 90% 10%, rgba(236,72,153,.12), transparent 25%),
+                linear-gradient(180deg, #08050f 0%, #0c0715 50%, #08050f 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        ::selection {
+            background: rgba(192,132,252,.35);
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(18px);
+            background: rgba(8,5,15,.86);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-inner {
+            max-width: 1450px;
+            min-height: 72px;
+            margin: auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            font-size: 20px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            box-shadow: 0 0 30px rgba(155,92,255,.3);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .online-badge {
+            padding: 8px 12px;
+            border: 1px solid rgba(34,197,94,.25);
+            background: rgba(34,197,94,.08);
+            color: #86efac;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .admin-header-btn {
+            border: 1px solid rgba(192,132,252,.2);
+            background: rgba(155,92,255,.08);
+            color: #d8b4fe;
+            padding: 9px 13px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            transition: .2s;
+        }
+
+        .admin-header-btn:hover {
+            background: rgba(155,92,255,.16);
+            border-color: rgba(192,132,252,.45);
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        main {
+            max-width: 1450px;
+            margin: auto;
+            padding: 35px 24px 80px;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+            padding: 55px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            background:
+                linear-gradient(135deg, rgba(155,92,255,.14), rgba(236,72,153,.06)),
+                rgba(19,13,33,.9);
+            box-shadow: var(--shadow);
+            margin-bottom: 28px;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            right: -100px;
+            top: -160px;
+            background: rgba(155,92,255,.12);
+            filter: blur(10px);
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            left: 35%;
+            bottom: -190px;
+            background: rgba(236,72,153,.1);
+            filter: blur(10px);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 850px;
+        }
+
+        .eyebrow {
+            color: var(--purple2);
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-size: clamp(38px, 7vw, 78px);
+            line-height: .95;
+            margin-bottom: 20px;
+            font-weight: 1000;
+            letter-spacing: -3px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, #fff, var(--purple2), #f472b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            max-width: 700px;
+            color: var(--muted);
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .btn {
+            border: 1px solid var(--border);
+            background: #171022;
+            color: var(--text);
+            border-radius: 12px;
+            padding: 12px 17px;
+            font-weight: 800;
+            transition: .2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(192,132,252,.45);
+            background: #211532;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            border: none;
+            box-shadow: 0 10px 30px rgba(155,92,255,.2);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.08);
+        }
+
+        .btn-danger {
+            color: #fca5a5;
+            border-color: rgba(239,68,68,.25);
+        }
+
+        .btn-small {
+            padding: 8px 11px;
+            border-radius: 9px;
+            font-size: 12px;
+        }
+
+        /* =========================
+           STATS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat {
+            background: rgba(19,13,33,.85);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 35px rgba(0,0,0,.18);
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: 1000;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #totalPlayers {
+            color: var(--purple2);
+        }
+
+        #alivePlayers {
+            color: var(--green);
+        }
+
+        #deadPlayers {
+            color: var(--red);
+        }
+
+        #unknownPlayers {
+            color: var(--gold);
+        }
+
+        /* =========================
+           PANEL
+        ========================= */
+
+        .panel {
+            background: rgba(19,13,33,.85);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 25px;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: minmax(220px, 2fr) repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .input,
+        .select,
+        textarea {
+            width: 100%;
+            color: var(--text);
+            background: #0d0817;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 12px 13px;
+            outline: none;
+            transition: .2s;
+        }
+
+        .input:focus,
+        .select:focus,
+        textarea:focus {
+            border-color: rgba(192,132,252,.6);
+            box-shadow: 0 0 0 3px rgba(155,92,255,.08);
+        }
+
+        .sort-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .results-count {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* =========================
+           PLAYER GRID
+        ========================= */
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .player-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(25,17,42,.96), rgba(14,9,24,.98));
+            box-shadow: 0 15px 45px rgba(0,0,0,.22);
+            transition: transform .22s, border-color .22s, box-shadow .22s;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(192,132,252,.3);
+            box-shadow: 0 22px 60px rgba(0,0,0,.35);
+        }
+
+        .player-card.dead {
+            filter: grayscale(.75);
+        }
+
+        .player-card.dead:hover {
+            filter: grayscale(.3);
+        }
+
+        .card-top {
+            height: 110px;
+            background:
+                linear-gradient(135deg, rgba(155,92,255,.24), rgba(236,72,153,.1)),
+                #120b1e;
+            position: relative;
+        }
+
+        .player-avatar {
+            position: absolute;
+            width: 104px;
+            height: 104px;
+            object-fit: cover;
+            image-rendering: pixelated;
+            left: 20px;
+            bottom: -48px;
+            border-radius: 15px;
+            border: 4px solid #171022;
+            background: #0b0712;
+            box-shadow: 0 10px 30px rgba(0,0,0,.45);
+        }
+
+        .card-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 10px;
+            font-weight: 1000;
+            letter-spacing: .4px;
+        }
+
+        .status.alive {
+            color: #4ade80;
+            background: rgba(34,197,94,.1);
+            border: 1px solid rgba(34,197,94,.3);
+        }
+
+        .status.dead {
+            color: #f87171;
+            background: rgba(239,68,68,.1);
+            border: 1px solid rgba(239,68,68,.3);
+        }
+
+        .status.unknown {
+            color: #facc15;
+            background: rgba(250,204,21,.1);
+            border: 1px solid rgba(250,204,21,.3);
+        }
+
+        .card-body {
+            padding: 62px 20px 20px;
+        }
+
+        .player-name {
+            font-size: 23px;
+            font-weight: 1000;
+            word-break: break-word;
+        }
+
+        .real-name {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 13px;
+        }
+
+        .badge {
+            padding: 6px 9px;
+            border-radius: 8px;
+            background: rgba(155,92,255,.1);
+            border: 1px solid rgba(155,92,255,.18);
+            color: #d8b4fe;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .badge.clan {
+            color: #f9a8d4;
+            background: rgba(236,72,153,.08);
+            border-color: rgba(236,72,153,.18);
+        }
+
+        .description {
+            color: #c1b8ce;
+            font-size: 13px;
+            line-height: 1.65;
+            margin-top: 15px;
+            min-height: 42px;
+        }
+
+        .info-list {
+            margin-top: 15px;
+            border-top: 1px solid var(--border);
+            padding-top: 13px;
+        }
+
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 12px;
+        }
+
+        .info-line span:first-child {
+            color: var(--muted);
+        }
+
+        .info-line span:last-child {
+            font-weight: 800;
+            text-align: right;
+        }
+
+        .special {
+            color: #c4b5fd !important;
+        }
+
+        .socials {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 16px;
+        }
+
+        .social {
+            text-decoration: none;
+            color: #d8d0df;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,.025);
+            padding: 7px 9px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            transition: .2s;
+        }
+
+        .social:hover {
+            border-color: rgba(192,132,252,.35);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* =========================
+           EMPTY
+        ========================= */
+
+        .empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 70px 20px;
+            border: 1px dashed rgba(255,255,255,.12);
+            border-radius: 20px;
+            background: rgba(19,13,33,.5);
+        }
+
+        .empty-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .empty h2 {
+            margin-bottom: 8px;
+        }
+
+        .empty p {
+            color: var(--muted);
+        }
+
+        /* =========================
+           MODALS
+        ========================= */
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: rgba(0,0,0,.78);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal {
+            width: min(850px, 100%);
+            max-height: 92vh;
+            overflow-y: auto;
+            background: #10091a;
+            border: 1px solid rgba(192,132,252,.2);
+            border-radius: 24px;
+            box-shadow: 0 30px 100px rgba(0,0,0,.6);
+        }
+
+        .small-modal {
+            width: min(450px, 100%);
+        }
+
+        .modal-header {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: 20px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(16,9,26,.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .close-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #191022;
+            color: white;
+            font-size: 18px;
+        }
+
+        .form {
+            padding: 22px;
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-section-title {
+            color: var(--purple2);
+            font-size: 12px;
+            font-weight: 1000;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 13px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 13px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            display: block;
+            color: #c9bfd3;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 7px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 5px;
+        }
+
+        .login-text {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* =========================
+           ADMIN PANEL
+        ========================= */
+
+        .admin-panel {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            background: #08050f;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-header {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: rgba(8,5,15,.94);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-header-inner {
+            max-width: 1450px;
+            min-height: 75px;
+            margin: auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .admin-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-title-icon {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: rgba(155,92,255,.12);
+            border: 1px solid rgba(155,92,255,.2);
+        }
+
+        .admin-title strong {
+            display: block;
+            font-size: 17px;
+        }
+
+        .admin-title span {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .admin-content {
+            max-width: 1450px;
+            margin: auto;
+            padding: 30px 24px 70px;
+        }
+
+        .admin-welcome {
+            padding: 28px;
+            margin-bottom: 22px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background:
+                linear-gradient(135deg, rgba(155,92,255,.12), rgba(236,72,153,.05)),
+                rgba(19,13,33,.85);
+        }
+
+        .admin-welcome h1 {
+            font-size: 30px;
+            margin-bottom: 7px;
+        }
+
+        .admin-welcome p {
+            color: var(--muted);
+        }
+
+        .admin-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .admin-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(19,13,33,.85);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        .admin-table th {
+            color: #bdb2ca;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,.015);
+        }
+
+        .admin-table td {
+            padding: 14px 15px;
+            border-bottom: 1px solid rgba(255,255,255,.05);
+            font-size: 13px;
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .admin-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            image-rendering: pixelated;
+            border: 2px solid rgba(255,255,255,.08);
+        }
+
+        .admin-player-name {
+            font-weight: 900;
+        }
+
+        .admin-player-real {
+            color: var(--muted);
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .admin-status {
+            display: inline-flex;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 900;
+        }
+
+        .admin-status.alive {
+            color: #4ade80;
+            background: rgba(34,197,94,.1);
+        }
+
+        .admin-status.dead {
+            color: #f87171;
+            background: rgba(239,68,68,.1);
+        }
+
+        .admin-status.unknown {
+            color: #facc15;
+            background: rgba(250,204,21,.1);
+        }
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        .toast {
+            position: fixed;
+            z-index: 1000;
+            right: 20px;
+            bottom: 20px;
+            padding: 13px 16px;
+            border-radius: 12px;
+            background: #1b1228;
+            border: 1px solid rgba(192,132,252,.25);
+            box-shadow: 0 15px 50px rgba(0,0,0,.4);
+            transform: translateY(30px);
+            opacity: 0;
+            pointer-events: none;
+            transition: .25s;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            text-align: center;
+            color: #736a80;
+            font-size: 12px;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1200px) {
+
+            .players-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .toolbar {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .toolbar .search {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 760px) {
+
+            .header-inner {
+                padding: 0 15px;
+            }
+
+            .online-badge {
+                display: none;
+            }
+
+            main {
+                padding: 20px 13px 50px;
+            }
+
+            .hero {
+                padding: 32px 22px;
+                border-radius: 21px;
+            }
+
+            .hero h1 {
+                letter-spacing: -2px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .toolbar .search {
+                grid-column: 1 / -1;
+            }
+
+            .sort-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .admin-header-inner {
+                padding: 0 15px;
+            }
+
+            .admin-content {
+                padding: 20px 13px 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .logo {
+                font-size: 15px;
+            }
+
+            .logo-icon {
+                width: 34px;
+                height: 34px;
+            }
+
+            .admin-header-btn {
+                padding: 8px 10px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar .search {
+                grid-column: auto;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     PUBLIC HEADER
+===================================================== -->
+
+<header>
+    <div class="header-inner">
+
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <div>UNSTABLE SMP</div>
+        </div>
+
+        <div class="header-right">
+
+            <div class="online-badge">
+                ● DATABASE ONLINE
+            </div>
+
+            <button
+                class="admin-header-btn"
+                onclick="openAdminLogin()"
+            >
+                🔐 Admin
+            </button>
+
+        </div>
+
+    </div>
+</header>
+
+
+<!-- =====================================================
+     PUBLIC WEBSITE
+===================================================== -->
+
+<main id="publicMain">
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div class="eyebrow">
+                ⚔️ HARDCORE SERVER DATABASE
+            </div>
+
+            <h1>
+                <span>UNSTABLE</span><br>
+                SMP
+            </h1>
+
+            <p>
+                Die zentrale Spieler-Datenbank des Unstable SMP.
+                Entdecke Spieler, Clans, Rollen, Basen und
+                weitere Informationen über die Community.
+            </p>
+
+            <div class="hero-buttons">
+
+                <button
+                    class="btn btn-primary"
+                    onclick="scrollToPlayers()"
+                >
+                    👥 Spieler ansehen
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="openAdminLogin()"
+                >
+                    🔐 Admin-Bereich
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="stats">
+
+        <div class="stat">
+
+            <div
+                class="stat-number"
+                id="totalPlayers"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                Spieler
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div
+                class="stat-number"
+                id="alivePlayers"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                Noch am Leben
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div
+                class="stat-number"
+                id="deadPlayers"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                Tot
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div
+                class="stat-number"
+                id="unknownPlayers"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                Unbekannt
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FILTER -->
+
+    <section
+        class="panel"
+        id="playersSection"
+    >
+
+        <div class="toolbar">
+
+            <input
+                id="search"
+                class="input search"
+                type="search"
+                placeholder="🔎 Spieler, Clan, Rolle, Base, Fähigkeit..."
+            >
+
+
+            <select
+                id="statusFilter"
+                class="select"
+            >
+                <option value="all">
+                    Alle Status
+                </option>
+
+                <option value="alive">
+                    🟢 Noch am Leben
+                </option>
+
+                <option value="dead">
+                    🔴 Tot
+                </option>
+
+                <option value="unknown">
+                    🟡 Unbekannt
+                </option>
+            </select>
+
+
+            <select
+                id="roleFilter"
+                class="select"
+            >
+                <option value="all">
+                    Alle Rollen
+                </option>
+            </select>
+
+
+            <select
+                id="clanFilter"
+                class="select"
+            >
+                <option value="all">
+                    Alle Clans
+                </option>
+            </select>
+
+        </div>
+
+
+        <div class="sort-row">
+
+            <div
+                class="results-count"
+                id="resultsCount"
+            >
+                0 Spieler angezeigt
+            </div>
+
+            <button
+                class="btn btn-small"
+                onclick="resetFilters()"
+            >
+                ↺ Filter zurücksetzen
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- PLAYER GRID -->
+
+    <section
+        class="players-grid"
+        id="playersGrid"
+    ></section>
+
+</main>
+
+
+<footer>
+    ⚡ UNSTABLE SMP • Player Database
+</footer>
+
+
+<!-- =====================================================
+     ADMIN LOGIN
+===================================================== -->
+
+<div
+    class="modal-backdrop"
+    id="loginModal"
+>
+
+    <div class="modal small-modal">
+
+        <div class="modal-header">
+
+            <h2>
+                🔐 Admin Login
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closeAdminLogin()"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            class="form"
+            id="loginForm"
+        >
+
+            <p class="login-text">
+                Der Admin-Bereich ist nur für Administratoren
+                vorgesehen.
+            </p>
+
+
+            <div class="field">
+
+                <label>
+                    Passwort
+                </label>
+
+                <input
+                    class="input"
+                    id="adminPassword"
+                    type="password"
+                    placeholder="Admin-Passwort"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <div
+                class="modal-footer"
+                style="margin-top:20px;"
+            >
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closeAdminLogin()"
+                >
+                    Abbrechen
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    🔓 Einloggen
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PLAYER EDIT MODAL
+===================================================== -->
+
+<div
+    class="modal-backdrop"
+    id="playerModal"
+>
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                Spieler hinzufügen
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closePlayerModal()"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            class="form"
+            id="playerForm"
+        >
+
+            <input
+                type="hidden"
+                id="playerId"
+            >
+
+
+            <!-- BASIC -->
+
+            <div class="form-section">
+
+                <div class="form-section-title">
+                    👤 Grundinformationen
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="field">
+
+                        <label>
+                            Minecraft Name *
+                        </label>
+
+                        <input
+                            class="input"
+                            id="minecraftName"
+                            required
+                            placeholder="z.B. Dream"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Echter Name
+                        </label>
+
+                        <input
+                            class="input"
+                            id="realName"
+                            placeholder="z.B. Max Mustermann"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Clan
+                        </label>
+
+                        <input
+                            class="input"
+                            id="clan"
+                            placeholder="z.B. Void"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Rolle
+                        </label>
+
+                        <input
+                            class="input"
+                            id="role"
+                            placeholder="z.B. PvP-Spieler"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Lebensstatus
+                        </label>
+
+                        <select
+                            class="select"
+                            id="status"
+                        >
+
+                            <option value="alive">
+                                🟢 Noch am Leben
+                            </option>
+
+                            <option value="dead">
+                                🔴 Tot
+                            </option>
+
+                            <option value="unknown">
+                                🟡 Unbekannt
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- WORLD -->
+
+            <div class="form-section">
+
+                <div class="form-section-title">
+                    🌎 Welt
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="field">
+
+                        <label>
+                            Base / Standort
+                        </label>
+
+                        <input
+                            class="input"
+                            id="base"
+                            placeholder="z.B. Nether-Festung"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Spezialfähigkeit
+                        </label>
+
+                        <input
+                            class="input"
+                            id="ability"
+                            placeholder="z.B. PvP-Meister"
+                        >
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label>
+                            Beschreibung / Biografie
+                        </label>
+
+                        <textarea
+                            id="description"
+                            placeholder="Erzähle etwas über diesen Spieler..."
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SOCIAL -->
+
+            <div class="form-section">
+
+                <div class="form-section-title">
+                    📱 Social Media
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="field">
+
+                        <label>
+                            YouTube
+                        </label>
+
+                        <input
+                            class="input"
+                            id="youtube"
+                            placeholder="https://youtube.com/..."
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Twitch
+                        </label>
+
+                        <input
+                            class="input"
+                            id="twitch"
+                            placeholder="https://twitch.tv/..."
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            TikTok
+                        </label>
+
+                        <input
+                            class="input"
+                            id="tiktok"
+                            placeholder="https://tiktok.com/@..."
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Instagram
+                        </label>
+
+                        <input
+                            class="input"
+                            id="instagram"
+                            placeholder="https://instagram.com/..."
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closePlayerModal()"
+                >
+                    Abbrechen
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    💾 Speichern
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ADMIN PANEL
+===================================================== -->
+
+<section
+    class="admin-panel"
+    id="adminPanel"
+>
+
+    <div class="admin-header">
+
+        <div class="admin-header-inner">
+
+            <div class="admin-title">
+
+                <div class="admin-title-icon">
+                    🛠️
+                </div>
+
+                <div>
+
+                    <strong>
+                        UNSTABLE SMP ADMIN
+                    </strong>
+
+                    <span>
+                        Spieler-Verwaltung
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="btn"
+                onclick="logoutAdmin()"
+            >
+                ← Website
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="admin-content">
+
+        <div class="admin-welcome">
+
+            <h1>
+                Admin Panel
+            </h1>
+
+            <p>
+                Hier kannst du die Spieler-Datenbank verwalten.
+                Änderungen sind direkt auf dieser Website sichtbar.
+            </p>
+
+
+            <div class="admin-tools">
+
+                <button
+                    class="btn btn-primary"
+                    onclick="openPlayerModal()"
+                >
+                    ＋ Spieler hinzufügen
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="refreshAdmin()"
+                >
+                    ↻ Aktualisieren
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="exportPlayers()"
+                >
+                    ↓ Daten exportieren
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="document.getElementById('importFile').click()"
+                >
+                    ↑ Daten importieren
+                </button>
+
+                <input
+                    type="file"
+                    id="importFile"
+                    accept=".json,application/json"
+                    style="display:none"
+                    onchange="importPlayers(event)"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-table-wrap">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Spieler
+                        </th>
+
+                        <th>
+                            Clan
+                        </th>
+
+                        <th>
+                            Rolle
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Aktionen
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="adminTableBody"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+<script>
+
+    /* =====================================================
+       ADMIN EINSTELLUNGEN
+    ===================================================== */
+
+    /*
+        WICHTIG:
+        Bei einer reinen HTML-Datei ist dieses Passwort
+        nicht wirklich geheim, da Besucher den Quellcode
+        sehen können.
+
+        Für einen echten öffentlichen Admin-Login sollte
+        später ein Backend verwendet werden.
+    */
+
+    const ADMIN_PASSWORD = "UnstableAdmin123!";
+
+
+    /* =====================================================
+       DEFAULT SPIELER
+    ===================================================== */
+
+    const defaultPlayers = [
+
+        {
+            id: crypto.randomUUID(),
+            minecraftName: "Spieler_01",
+            realName: "Max",
+            clan: "Void",
+            role: "PvP-Spieler",
+            status: "alive",
+            base: "End-Festung",
+            ability: "PvP-Meister",
+            description: "Einer der aktivsten PvP-Spieler des Servers.",
+            youtube: "",
+            twitch: "",
+            tiktok: "",
+            instagram: ""
+        },
+
+        {
+            id: crypto.randomUUID(),
+            minecraftName: "Spieler_02",
+            realName: "Luca",
+            clan: "Shadow",
+            role: "Builder",
+            status: "alive",
+            base: "Dark Oak Base",
+            ability: "Redstone",
+            description: "Bekannt für große Builds und geheime Redstone-Systeme.",
+            youtube: "",
+            twitch: "",
+            tiktok: "",
+            instagram: ""
+        },
+
+        {
+            id: crypto.randomUUID(),
+            minecraftName: "Spieler_03",
+            realName: "Jonas",
+            clan: "Void",
+            role: "Miner",
+            status: "alive",
+            base: "Underground",
+            ability: "Mining",
+            description: "Sammelt seltene Ressourcen für den Clan.",
+            youtube: "",
+            twitch: "",
+            tiktok: "",
+            instagram: ""
+        },
+
+        {
+            id: crypto.randomUUID(),
+            minecraftName: "Spieler_04",
+            realName: "Unknown",
+            clan: "Shadow",
+            role: "Krieger",
+            status: "dead",
+            base: "Altes Dorf",
+            ability: "Axtkampf",
+            description: "Im Hardcore-Modus gefallen.",
+            youtube: "",
+            twitch: "",
+            tiktok: "",
+            instagram: ""
+        },
+
+        {
+            id: crypto.randomUUID(),
+            minecraftName: "Spieler_05",
+            realName: "",
+            clan: "",
+            role: "Unbekannt",
+            status: "unknown",
+            base: "Unbekannt",
+            ability: "Unbekannt",
+            description: "Der aktuelle Lebensstatus ist nicht bekannt.",
+            youtube: "",
+            twitch: "",
+            tiktok: "",
+            instagram: ""
+        }
+
+    ];
+
+
+    /* =====================================================
+       STORAGE
+    ===================================================== */
+
+    let storedPlayers = null;
+
+    try {
+
+        storedPlayers =
+            JSON.parse(
+                localStorage.getItem("unstableSmpPlayers") || "null"
+            );
+
+    } catch {
+
+        storedPlayers = null;
+
+    }
+
+
+    let players =
+        Array.isArray(storedPlayers)
+
+            ? storedPlayers.map(player => ({
+
+                ...player,
+
+                clan: player.clan || "",
+                role: player.role || "",
+                base: player.base || "",
+                ability: player.ability || "",
+                description: player.description || "",
+
+                status:
+                    player.status === "dead"
+                        ? "dead"
+                        : player.status === "unknown"
+                            ? "unknown"
+                            : "alive"
+
+            }))
+
+            : defaultPlayers;
+
+
+    function savePlayers() {
+
+        localStorage.setItem(
+            "unstableSmpPlayers",
+            JSON.stringify(players)
+        );
+
+    }
+
+
+    /* =====================================================
+       HELPERS
+    ===================================================== */
+
+    function escapeHtml(value) {
+
+        return String(value ?? "")
+
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+    }
+
+
+    function safeUrl(url) {
+
+        if (!url) return "";
+
+        try {
+
+            const parsed = new URL(url);
+
+            if (
+                parsed.protocol === "http:" ||
+                parsed.protocol === "https:"
+            ) {
+                return parsed.href;
+            }
+
+            return "";
+
+        } catch {
+
+            return "";
+
+        }
+
+    }
+
+
+    function getSkin(name) {
+
+        return "https://mc-heads.net/avatar/" +
+            encodeURIComponent(name || "Steve") +
+            "/120";
+
+    }
+
+
+    /* =====================================================
+       STATS
+    ===================================================== */
+
+    function updateStats() {
+
+        document
+            .getElementById("totalPlayers")
+            .textContent = players.length;
+
+
+        document
+            .getElementById("alivePlayers")
+            .textContent =
+            players.filter(
+                player => player.status === "alive"
+            ).length;
+
+
+        document
+            .getElementById("deadPlayers")
+            .textContent =
+            players.filter(
+                player => player.status === "dead"
+            ).length;
+
+
+        document
+            .getElementById("unknownPlayers")
+            .textContent =
+            players.filter(
+                player => player.status === "unknown"
+            ).length;
+
+    }
+
+
+    /* =====================================================
+       FILTER
+    ===================================================== */
+
+    function updateRoleFilter() {
+
+        const select =
+            document.getElementById("roleFilter");
+
+        const current = select.value;
+
+        const roles = [
+            ...new Set(
+                players
+                    .map(player => player.role)
+                    .filter(Boolean)
+            )
+        ].sort((a, b) =>
+            a.localeCompare(b, "de")
+        );
+
+
+        select.innerHTML =
+            `<option value="all">Alle Rollen</option>` +
+            roles.map(role =>
+                `<option value="${escapeHtml(role)}">
+                    ${escapeHtml(role)}
+                </option>`
+            ).join("");
+
+
+        if (roles.includes(current)) {
+            select.value = current;
+        }
+
+    }
+
+
+    function updateClanFilter() {
+
+        const select =
+            document.getElementById("clanFilter");
+
+        const current = select.value;
+
+        const clans = [
+            ...new Set(
+                players
+                    .map(player => player.clan)
+                    .filter(Boolean)
+            )
+        ].sort((a, b) =>
+            a.localeCompare(b, "de")
+        );
+
+
+        select.innerHTML =
+            `<option value="all">Alle Clans</option>` +
+            clans.map(clan =>
+                `<option value="${escapeHtml(clan)}">
+                    ${escapeHtml(clan)}
+                </option>`
+            ).join("");
+
+
+        if (clans.includes(current)) {
+            select.value = current;
+        }
+
+    }
+
+
+    /* =====================================================
+       STATUS
+    ===================================================== */
+
+    function getStatusHtml(status) {
+
+        if (status === "alive") {
+
+            return `
+                <div class="status alive">
+                    ● NOCH AM LEBEN
+                </div>
+            `;
+
+        }
+
+
+        if (status === "dead") {
+
+            return `
+                <div class="status dead">
+                    ✖ TOT
+                </div>
+            `;
+
+        }
+
+
+        return `
+            <div class="status unknown">
+                ? UNBEKANNT
+            </div>
+        `;
+
+    }
+
+
+    /* =====================================================
+       PUBLIC RENDER
+    ===================================================== */
+
+    function renderPlayers() {
+
+        const grid =
+            document.getElementById("playersGrid");
+
+
+        const search =
+            document
+                .getElementById("search")
+                .value
+                .toLowerCase()
+                .trim();
+
+
+        const status =
+            document.getElementById("statusFilter").value;
+
+
+        const role =
+            document.getElementById("roleFilter").value;
+
+
+        const clan =
+            document.getElementById("clanFilter").value;
+
+
+        const filtered =
+            players.filter(player => {
+
+                const searchable = [
+
+                    player.minecraftName,
+                    player.realName,
+                    player.clan,
+                    player.role,
+                    player.base,
+                    player.ability,
+                    player.description
+
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+
+                const matchesSearch =
+                    !search ||
+                    searchable.includes(search);
+
+
+                const matchesStatus =
+                    status === "all" ||
+                    player.status === status;
+
+
+                const matchesRole =
+                    role === "all" ||
+                    player.role === role;
+
+
+                const matchesClan =
+                    clan === "all" ||
+                    player.clan === clan;
+
+
+                return (
+                    matchesSearch &&
+                    matchesStatus &&
+                    matchesRole &&
+                    matchesClan
+                );
+
+            });
+
+
+        document
+            .getElementById("resultsCount")
+            .textContent =
+            `${filtered.length} Spieler angezeigt`;
+
+
+        if (!filtered.length) {
+
+            grid.innerHTML = `
+
+                <div class="empty">
+
+                    <div class="empty-icon">
+                        🔎
+                    </div>
+
+                    <h2>
+                        Keine Spieler gefunden
+                    </h2>
+
+                    <p>
+                        Versuche andere Suchbegriffe
+                        oder setze die Filter zurück.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        grid.innerHTML =
+            filtered
+                .map(createPlayerCard)
+                .join("");
+
+    }
+
+
+    /* =====================================================
+       PLAYER CARD
+    ===================================================== */
+
+    function createPlayerCard(player) {
+
+        const socials = [];
+
+
+        const youtube = safeUrl(player.youtube);
+
+        const twitch = safeUrl(player.twitch);
+
+        const tiktok = safeUrl(player.tiktok);
+
+        const instagram = safeUrl(player.instagram);
+
+
+        if (youtube) {
+
+            socials.push(`
+                <a
+                    class="social"
+                    href="${escapeHtml(youtube)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    ▶ YouTube
+                </a>
+            `);
+
+        }
+
+
+        if (twitch) {
+
+            socials.push(`
+                <a
+                    class="social"
+                    href="${escapeHtml(twitch)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    🎮 Twitch
+                </a>
+            `);
+
+        }
+
+
+        if (tiktok) {
+
+            socials.push(`
+                <a
+                    class="social"
+                    href="${escapeHtml(tiktok)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    ♪ TikTok
+                </a>
+            `);
+
+        }
+
+
+        if (instagram) {
+
+            socials.push(`
+                <a
+                    class="social"
+                    href="${escapeHtml(instagram)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    ◎ Instagram
+                </a>
+            `);
+
+        }
+
+
+        return `
+
+            <article
+                class="player-card ${escapeHtml(player.status)}"
+            >
+
+                <div class="card-top">
+
+                    <img
+                        class="player-avatar"
+                        src="${getSkin(player.minecraftName)}"
+                        alt="${escapeHtml(player.minecraftName)}"
+                        loading="lazy"
+                        onerror="this.src='https://mc-heads.net/avatar/Steve/120'"
+                    >
+
+
+                    <div class="card-status">
+                        ${getStatusHtml(player.status)}
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="player-name">
+                        ${escapeHtml(player.minecraftName)}
+                    </div>
+
+
+                    ${
+                        player.realName
+                            ? `
+                                <div class="real-name">
+                                    ${escapeHtml(player.realName)}
+                                </div>
+                            `
+                            : ""
+                    }
+
+
+                    <div class="badges">
+
+                        ${
+                            player.role
+                                ? `
+                                    <div class="badge">
+                                        ⚔️ ${escapeHtml(player.role)}
+                                    </div>
+                                `
+                                : ""
+                        }
+
+
+                        ${
+                            player.clan
+                                ? `
+                                    <div class="badge clan">
+                                        🛡️ ${escapeHtml(player.clan)}
+                                    </div>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+
+                    <div class="description">
+                        ${escapeHtml(
+                            player.description ||
+                            "Keine Beschreibung vorhanden."
+                        )}
+                    </div>
+
+
+                    <div class="info-list">
+
+                        <div class="info-line">
+
+                            <span>
+                                📍 Base
+                            </span>
+
+                            <span>
+                                ${escapeHtml(
+                                    player.base ||
+                                    "Unbekannt"
+                                )}
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-line">
+
+                            <span>
+                                🎯 Fähigkeit
+                            </span>
+
+                            <span class="special">
+                                ${escapeHtml(
+                                    player.ability ||
+                                    "Unbekannt"
+                                )}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    ${
+                        socials.length
+                            ? `
+                                <div class="socials">
+                                    ${socials.join("")}
+                                </div>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            </article>
+
+        `;
+
+    }
+
+
+    /* =====================================================
+       ADMIN LOGIN
+    ===================================================== */
+
+    function openAdminLogin() {
+
+        if (sessionStorage.getItem("unstableAdmin") === "true") {
+
+            openAdminPanel();
+
+            return;
+
+        }
+
+
+        document
+            .getElementById("loginModal")
+            .classList.add("active");
+
+
+        document
+            .getElementById("adminPassword")
+            .value = "";
+
+
+        setTimeout(() => {
+
+            document
+                .getElementById("adminPassword")
+                .focus();
+
+        }, 100);
+
+    }
+
+
+    function closeAdminLogin() {
+
+        document
+            .getElementById("loginModal")
+            .classList.remove("active");
+
+    }
+
+
+    document
+        .getElementById("loginForm")
+        .addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+
+            const password =
+                document
+                    .getElementById("adminPassword")
+                    .value;
+
+
+            if (password !== ADMIN_PASSWORD) {
+
+                showToast(
+                    "❌ Falsches Admin-Passwort."
+                );
+
+                return;
+
+            }
+
+
+            sessionStorage.setItem(
+                "unstableAdmin",
+                "true"
+            );
+
+
+            closeAdminLogin();
+
+            openAdminPanel();
+
+        });
+
+
+    /* =====================================================
+       ADMIN PANEL
+    ===================================================== */
+
+    function openAdminPanel() {
+
+        if (
+            sessionStorage.getItem("unstableAdmin")
+            !== "true"
+        ) {
+
+            openAdminLogin();
+
+            return;
+
+        }
+
+
+        document
+            .getElementById("adminPanel")
+            .classList.add("active");
+
+
+        document.body.classList.add("modal-open");
+
+        renderAdminTable();
+
+    }
+
+
+    function logoutAdmin() {
+
+        sessionStorage.removeItem(
+            "unstableAdmin"
+        );
+
+
+        document
+            .getElementById("adminPanel")
+            .classList.remove("active");
+
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+
+        showToast(
+            "Admin abgemeldet."
+        );
+
+    }
+
+
+    /* =====================================================
+       ADMIN TABLE
+    ===================================================== */
+
+    function renderAdminTable() {
+
+        const tbody =
+            document.getElementById(
+                "adminTableBody"
+            );
+
+
+        if (!players.length) {
+
+            tbody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        style="text-align:center;color:var(--muted);padding:40px;"
+                    >
+                        Noch keine Spieler vorhanden.
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
+        tbody.innerHTML =
+            players.map(player => `
+
+                <tr>
+
+                    <td>
+
+                        <div class="admin-player">
+
+                            <img
+                                class="admin-avatar"
+                                src="${getSkin(player.minecraftName)}"
+                                alt=""
+                            >
+
+                            <div>
+
+                                <div class="admin-player-name">
+                                    ${escapeHtml(
+                                        player.minecraftName
+                                    )}
+                                </div>
+
+                                ${
+                                    player.realName
+                                        ? `
+                                            <div class="admin-player-real">
+                                                ${escapeHtml(
+                                                    player.realName
+                                                )}
+                                            </div>
+                                        `
+                                        : ""
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            player.clan ||
+                            "—"
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            player.role ||
+                            "—"
+                        )}
+                    </td>
+
+
+                    <td>
+                        <span
+                            class="admin-status ${escapeHtml(
+                                player.status
+                            )}"
+                        >
+                            ${
+                                player.status === "alive"
+                                    ? "🟢 LEBEND"
+                                    : player.status === "dead"
+                                        ? "🔴 TOT"
+                                        : "🟡 UNBEKANNT"
+                            }
+                        </span>
+                    </td>
+
+
+                    <td>
+
+                        <div class="admin-actions">
+
+                            <button
+                                class="btn btn-small"
+                                onclick="editPlayer('${player.id}')"
+                            >
+                                ✏️ Ändern
+                            </button>
+
+
+                            <button
+                                class="btn btn-small btn-danger"
+                                onclick="deletePlayer('${player.id}')"
+                            >
+                                🗑️ Löschen
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `).join("");
+
+    }
+
+
+    function refreshAdmin() {
+
+        updateStats();
+
+        updateRoleFilter();
+
+        updateClanFilter();
+
+        renderPlayers();
+
+        renderAdminTable();
+
+        showToast(
+            "Admin-Panel aktualisiert."
+        );
+
+    }
+
+
+    /* =====================================================
+       PLAYER MODAL
+    ===================================================== */
+
+    function openPlayerModal(id = null) {
+
+        if (
+            sessionStorage.getItem("unstableAdmin")
+            !== "true"
+        ) {
+
+            showToast(
+                "Admin-Rechte erforderlich."
+            );
+
+            return;
+
+        }
+
+
+        const form =
+            document.getElementById(
+                "playerForm"
+            );
+
+
+        form.reset();
+
+
+        document
+            .getElementById("playerId")
+            .value = "";
+
+
+        document
+            .getElementById("status")
+            .value = "alive";
+
+
+        if (id) {
+
+            const player =
+                players.find(
+                    p => p.id === id
+                );
+
+
+            if (!player) return;
+
+
+            document
+                .getElementById("modalTitle")
+                .textContent =
+                "Spieler bearbeiten";
+
+
+            document
+                .getElementById("playerId")
+                .value =
+                player.id;
+
+
+            document
+                .getElementById("minecraftName")
+                .value =
+                player.minecraftName || "";
+
+
+            document
+                .getElementById("realName")
+                .value =
+                player.realName || "";
+
+
+            document
+                .getElementById("clan")
+                .value =
+                player.clan || "";
+
+
+            document
+                .getElementById("role")
+                .value =
+                player.role || "";
+
+
+            document
+                .getElementById("status")
+                .value =
+                player.status === "dead"
+                    ? "dead"
+                    : player.status === "unknown"
+                        ? "unknown"
+                        : "alive";
+
+
+            document
+                .getElementById("base")
+                .value =
+                player.base || "";
+
+
+            document
+                .getElementById("ability")
+                .value =
+                player.ability || "";
+
+
+            document
+                .getElementById("description")
+                .value =
+                player.description || "";
+
+
+            document
+                .getElementById("youtube")
+                .value =
+                player.youtube || "";
+
+
+            document
+                .getElementById("twitch")
+                .value =
+                player.twitch || "";
+
+
+            document
+                .getElementById("tiktok")
+                .value =
+                player.tiktok || "";
+
+
+            document
+                .getElementById("instagram")
+                .value =
+                player.instagram || "";
+
+        } else {
+
+            document
+                .getElementById("modalTitle")
+                .textContent =
+                "Spieler hinzufügen";
+
+        }
+
+
+        document
+            .getElementById("playerModal")
+            .classList.add("active");
+
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+
+        setTimeout(() => {
+
+            document
+                .getElementById("minecraftName")
+                .focus();
+
+        }, 100);
+
+    }
+
+
+    function editPlayer(id) {
+
+        openPlayerModal(id);
+
+    }
+
+
+    function closePlayerModal() {
+
+        document
+            .getElementById("playerModal")
+            .classList.remove("active");
+
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+
+    /* =====================================================
+       SAVE PLAYER
+    ===================================================== */
+
+    document
+        .getElementById("playerForm")
+        .addEventListener(
+            "submit",
+            function(event) {
+
+                event.preventDefault();
+
+
+                if (
+                    sessionStorage.getItem(
+                        "unstableAdmin"
+                    ) !== "true"
+                ) {
+
+                    showToast(
+                        "Keine Admin-Rechte."
+                    );
+
+                    return;
+
+                }
+
+
+                const id =
+                    document
+                        .getElementById("playerId")
+                        .value;
+
+
+                const playerData = {
+
+                    minecraftName:
+                        document
+                            .getElementById("minecraftName")
+                            .value
+                            .trim(),
+
+                    realName:
+                        document
+                            .getElementById("realName")
+                            .value
+                            .trim(),
+
+                    clan:
+                        document
+                            .getElementById("clan")
+                            .value
+                            .trim(),
+
+                    role:
+                        document
+                            .getElementById("role")
+                            .value
+                            .trim(),
+
+                    status:
+                        document
+                            .getElementById("status")
+                            .value,
+
+                    base:
+                        document
+                            .getElementById("base")
+                            .value
+                            .trim(),
+
+                    ability:
+                        document
+                            .getElementById("ability")
+                            .value
+                            .trim(),
+
+                    description:
+                        document
+                            .getElementById("description")
+                            .value
+                            .trim(),
+
+                    youtube:
+                        document
+                            .getElementById("youtube")
+                            .value
+                            .trim(),
+
+                    twitch:
+                        document
+                            .getElementById("twitch")
+                            .value
+                            .trim(),
+
+                    tiktok:
+                        document
+                            .getElementById("tiktok")
+                            .value
+                            .trim(),
+
+                    instagram:
+                        document
+                            .getElementById("instagram")
+                            .value
+                            .trim()
+
+                };
+
+
+                if (!playerData.minecraftName) {
+
+                    showToast(
+                        "Minecraft Name fehlt."
+                    );
+
+                    return;
+
+                }
+
+
+                if (id) {
+
+                    const index =
+                        players.findIndex(
+                            player =>
+                                player.id === id
+                        );
+
+
+                    if (index !== -1) {
+
+                        players[index] = {
+
+                            ...players[index],
+
+                            ...playerData
+
+                        };
+
+
+                        showToast(
+                            "✅ Spieler geändert."
+                        );
+
+                    }
+
+                } else {
+
+                    players.push({
+
+                        id: crypto.randomUUID(),
+
+                        ...playerData
+
+                    });
+
+
+                    showToast(
+                        "✅ Spieler hinzugefügt."
+                    );
+
+                }
+
+
+                savePlayers();
+
+                updateStats();
+
+                updateRoleFilter();
+
+                updateClanFilter();
+
+                renderPlayers();
+
+                renderAdminTable();
+
+                closePlayerModal();
+
+            }
+        );
+
+
+    /* =====================================================
+       DELETE PLAYER
+    ===================================================== */
+
+    function deletePlayer(id) {
+
+        if (
+            sessionStorage.getItem(
+                "unstableAdmin"
+            ) !== "true"
+        ) {
+
+            showToast(
+                "Keine Admin-Rechte."
+            );
+
+            return;
+
+        }
+
+
+        const player =
+            players.find(
+                p => p.id === id
+            );
+
+
+        if (!player) return;
+
+
+        const confirmed =
+            confirm(
+                `Soll "${player.minecraftName}" wirklich gelöscht werden?`
+            );
+
+
+        if (!confirmed) return;
+
+
+        players =
+            players.filter(
+                player =>
+                    player.id !== id
+            );
+
+
+        savePlayers();
+
+        updateStats();
+
+        updateRoleFilter();
+
+        updateClanFilter();
+
+        renderPlayers();
+
+        renderAdminTable();
+
+
+        showToast(
+            "🗑️ Spieler gelöscht."
+        );
+
+    }
+
+
+    /* =====================================================
+       EXPORT
+    ===================================================== */
+
+    function exportPlayers() {
+
+        if (
+            sessionStorage.getItem(
+                "unstableAdmin"
+            ) !== "true"
+        ) {
+
+            showToast(
+                "Keine Admin-Rechte."
+            );
+
+            return;
+
+        }
+
+
+        const data =
+            JSON.stringify(
+                players,
+                null,
+                2
+            );
+
+
+        const blob =
+            new Blob(
+                [data],
+                {
+                    type: "application/json"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href = url;
+
+        link.download =
+            "unstable-smp-players.json";
+
+
+        link.click();
+
+
+        URL.revokeObjectURL(url);
+
+
+        showToast(
+            "Spielerdaten exportiert."
+        );
+
+    }
+
+
+    /* =====================================================
+       IMPORT
+    ===================================================== */
+
+    function importPlayers(event) {
+
+        if (
+            sessionStorage.getItem(
+                "unstableAdmin"
+            ) !== "true"
+        ) {
+
+            showToast(
+                "Keine Admin-Rechte."
+            );
+
+            return;
+
+        }
+
+
+        const file =
+            event.target.files[0];
+
+
+        if (!file) return;
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload = function() {
+
+            try {
+
+                const imported =
+                    JSON.parse(
+                        reader.result
+                    );
+
+
+                if (!Array.isArray(imported)) {
+
+                    throw new Error(
+                        "Ungültige Datei"
+                    );
+
+                }
+
+
+                players =
+                    imported.map(player => ({
+
+                        id:
+                            player.id ||
+                            crypto.randomUUID(),
+
+                        minecraftName:
+                            player.minecraftName || "Unbekannt",
+
+                        realName:
+                            player.realName || "",
+
+                        clan:
+                            player.clan || "",
+
+                        role:
+                            player.role || "",
+
+                        status:
+                            player.status === "dead"
+                                ? "dead"
+                                : player.status === "unknown"
+                                    ? "unknown"
+                                    : "alive",
+
+                        base:
+                            player.base || "",
+
+                        ability:
+                            player.ability || "",
+
+                        description:
+                            player.description || "",
+
+                        youtube:
+                            player.youtube || "",
+
+                        twitch:
+                            player.twitch || "",
+
+                        tiktok:
+                            player.tiktok || "",
+
+                        instagram:
+                            player.instagram || ""
+
+                    }));
+
+
+                savePlayers();
+
+                updateStats();
+
+                updateRoleFilter();
+
+                updateClanFilter();
+
+                renderPlayers();
+
+                renderAdminTable();
+
+
+                showToast(
+                    "Spielerdaten importiert."
+                );
+
+
+            } catch {
+
+                showToast(
+                    "❌ Import fehlgeschlagen."
+                );
+
+            }
+
+
+            event.target.value = "";
+
+        };
+
+
+        reader.readAsText(file);
+
+    }
+
+
+    /* =====================================================
+       FILTER EVENTS
+    ===================================================== */
+
+    document
+        .getElementById("search")
+        .addEventListener(
+            "input",
+            renderPlayers
+        );
+
+
+    document
+        .getElementById("statusFilter")
+        .addEventListener(
+            "change",
+            renderPlayers
+        );
+
+
+    document
+        .getElementById("roleFilter")
+        .addEventListener(
+            "change",
+            renderPlayers
+        );
+
+
+    document
+        .getElementById("clanFilter")
+        .addEventListener(
+            "change",
+            renderPlayers
+        );
+
+
+    /* =====================================================
+       RESET FILTER
+    ===================================================== */
+
+    function resetFilters() {
+
+        document
+            .getElementById("search")
+            .value = "";
+
+
+        document
+            .getElementById("statusFilter")
+            .value = "all";
+
+
+        document
+            .getElementById("roleFilter")
+            .value = "all";
+
+
+        document
+            .getElementById("clanFilter")
+            .value = "all";
+
+
+        renderPlayers();
+
+
+        showToast(
+            "Filter zurückgesetzt."
+        );
+
+    }
+
+
+    /* =====================================================
+       SCROLL
+    ===================================================== */
+
+    function scrollToPlayers() {
+
+        document
+            .getElementById("playersSection")
+            .scrollIntoView({
+                behavior: "smooth"
+            });
+
+    }
+
+
+    /* =====================================================
+       TOAST
+    ===================================================== */
+
+    let toastTimer;
+
+
+    function showToast(message) {
+
+        const toast =
+            document.getElementById("toast");
+
+
+        toast.textContent =
+            message;
+
+
+        toast.classList.add("show");
+
+
+        clearTimeout(toastTimer);
+
+
+        toastTimer =
+            setTimeout(() => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            }, 2500);
+
+    }
+
+
+    /* =====================================================
+       MODAL CLICK OUTSIDE
+    ===================================================== */
+
+    document
+        .getElementById("loginModal")
+        .addEventListener(
+            "click",
+            function(event) {
+
+                if (event.target === this) {
+                    closeAdminLogin();
+                }
+
+            }
+        );
+
+
+    document
+        .getElementById("playerModal")
+        .addEventListener(
+            "click",
+            function(event) {
+
+                if (event.target === this) {
+                    closePlayerModal();
+                }
+
+            }
+        );
+
+
+    /* =====================================================
+       ESCAPE
+    ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key !== "Escape") return;
+
+
+            if (
+                document
+                    .getElementById("playerModal")
+                    .classList.contains("active")
+            ) {
+
+                closePlayerModal();
+
+                return;
+
+            }
+
+
+            if (
+                document
+                    .getElementById("loginModal")
+                    .classList.contains("active")
+            ) {
+
+                closeAdminLogin();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       INITIALIZE
+    ===================================================== */
+
+    updateStats();
+
+    updateRoleFilter();
+
+    updateClanFilter();
+
+    renderPlayers();
+
+</script>
+
+</body>
+</html>
